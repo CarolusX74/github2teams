@@ -1,0 +1,9 @@
+{
+  "repos": {
+    "your_organization/repository_name": [
+      "https://your_organization.webhook.office.com/webhookb2/example1",
+      "https://your_organization.webhook.office.com/webhookb2/example2"
+    ]
+  },
+  "secret": "my-webhook-secret"
+}

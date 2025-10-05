@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="title">GitHub Webhooks Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #343a40;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    h2 {
+      margin-top: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    form {
+      margin: 0.25rem 0;
+    }
+
+    input,
+    button {
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .url-box {
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .small-btn {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+      margin-left: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .danger {
+      background-color: #dc3545;
+    }
+
+    .danger:hover {
+      background-color: #a71d2a;
+    }
+
+    .test {
+      background-color: #28a745;
+    }
+
+    .test:hover {
+      background-color: #1e7e34;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 20px;
+      top: 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: .4rem .6rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: #a71d2a;
+    }
+
+    footer {
+      text-align: center;
+      color: #555;
+      font-size: 0.9rem;
+      padding: 2rem 1rem;
+      background: #f0f0f0;
+      margin-top: 3rem;
+    }
+
+    .donate-btn {
+      display: inline-block;
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .kofi {
+      background-color: #29abe0;
+    }
+
+    .coffee {
+      background-color: #ff813f;
+    }
+
+    .donate-btn:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 data-i18n="title">GitHub Webhooks Admin</h1>
+    <form method="post" action="/logout">
+      <button type="submit" class="logout-btn" data-i18n="logout">Salir</button>
+    </form>
+  </header>
+
+  <main>
+    <h2 data-i18n="reposConfigured">Repositorios configurados</h2>
+
+    {% if repos %}
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="repository">Repositorio</th>
+          <th data-i18n="configuredURLs">URLs configuradas</th>
+          <th data-i18n="actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for repo, urls in repos.items() %}
+        <tr>
+          <td><strong>{{ repo }}</strong></td>
+          <td>
+            {% if urls %}
+            {% for url in urls %}
+            <div class="url-box">
+              <a href="{{ url }}" target="_blank">{{ url }}</a>
+              <form method="post" action="/admin/delete-url" style="display:inline">
+                <input type="hidden" name="csrf" value="{{ csrf_token }}">
+                <input type="hidden" name="repo_name" value="{{ repo }}">
+                <input type="hidden" name="webhook_url" value="{{ url }}">
+                <button class="small-btn danger" type="submit" data-i18n="deleteURL">Eliminar</button>
+              </form>
+              <form method="post" action="/admin/test-url" style="display:inline">
+                <input type="hidden" name="csrf" value="{{ csrf_token }}">
+                <input type="hidden" name="repo_name" value="{{ repo }}">
+                <input type="hidden" name="webhook_url" value="{{ url }}">
+                <button class="small-btn test" type="submit" data-i18n="testURL">Probar</button>
+              </form>
+            </div>
+            {% endfor %}
+            {% else %}
+            <em data-i18n="noURLs">No hay URLs configuradas</em>
+            {% endif %}
+            <form method="post" action="/admin/add-url">
+              <input type="hidden" name="csrf" value="{{ csrf_token }}">
+              <input type="hidden" name="repo_name" value="{{ repo }}">
+              <input type="text" name="webhook_url" placeholder="Nueva URL de Teams" data-i18n-placeholder="newURL">
+              <button type="submit" data-i18n="addURL">Agregar URL</button>
+            </form>
+          </td>
+          <td>
+            <form method="post" action="/admin/delete-repo"
+              onsubmit="return confirm('¿Eliminar repo y todas sus URLs?')">
+              <input type="hidden" name="csrf" value="{{ csrf_token }}">
+              <input type="hidden" name="repo_name" value="{{ repo }}">
+              <button class="danger" type="submit" data-i18n="deleteRepo">Eliminar Repo</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p data-i18n="noRepos">No hay repos configurados.</p>
+    {% endif %}
+
+    <h2 data-i18n="addRepo">Agregar nuevo repositorio</h2>
+    <form method="post" action="/admin/add-repo">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <label data-i18n="repoName">Nombre repo (org/repo):</label><br>
+      <input type="text" name="repo_name" placeholder="Ej: empresa/proyecto" required><br>
+      <button type="submit" data-i18n="addButton">Agregar Repo</button>
+    </form>
+
+    <h2 data-i18n="hmacTitle">Configurar HMAC Secret</h2>
+    <form method="post" action="/admin/set-secret">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <label data-i18n="currentSecret">Clave secreta actual:</label><br>
+      <input type="text" value="{{ secret }}" disabled><br>
+      <label data-i18n="newSecret">Nueva clave secreta:</label><br>
+      <input type="text" name="secret" placeholder="Nuevo secreto HMAC" required><br>
+      <button type="submit" data-i18n="saveButton">Guardar</button>
+    </form>
+  </main>
+
+  <footer>
+    <p><span data-i18n="footerMade">Hecho con ❤️ por</span> <strong>Carlos Pensa</strong></p>
+    <p data-i18n="footerInfo">Este proyecto es open source y forma parte del ecosistema <strong>PensaInfra</strong>.</p>
+    <div>
+      <a href="https://ko-fi.com/carolusx74" class="donate-btn kofi" target="_blank" data-i18n="donateKofi">☕ Invítame un café (Ko-fi)</a>
+      <a href="https://www.buymeacoffee.com/carolusx74" class="donate-btn coffee" target="_blank" data-i18n="donateCoffee">🍵 Buy me a coffee</a>
+    </div>
+    <p id="footer-year"></p>
+  </footer>
+
+  <script>
+    // 🔓 Permitir copiar, pegar y cortar
+    document.addEventListener('DOMContentLoaded', () => {
+      const allow = e => e.stopPropagation();
+      ['paste', 'copy', 'cut'].forEach(evt => {
+        document.querySelectorAll('input, textarea').forEach(el => {
+          el.addEventListener(evt, allow, true);
+        });
+      });
+    });
+
+    // 🌍 Traducciones dinámicas
+    const translations = {
+      es: {
+        title: "GitHub Webhooks Admin",
+        logout: "Salir",
+        reposConfigured: "Repositorios configurados",
+        repository: "Repositorio",
+        configuredURLs: "URLs configuradas",
+        actions: "Acciones",
+        deleteURL: "Eliminar",
+        testURL: "Probar",
+        noURLs: "No hay URLs configuradas",
+        newURL: "Nueva URL de Teams",
+        addURL: "Agregar URL",
+        deleteRepo: "Eliminar Repo",
+        noRepos: "No hay repos configurados.",
+        addRepo: "Agregar nuevo repositorio",
+        repoName: "Nombre repo (org/repo):",
+        addButton: "Agregar Repo",
+        hmacTitle: "Configurar HMAC Secret",
+        currentSecret: "Clave secreta actual:",
+        newSecret: "Nueva clave secreta:",
+        saveButton: "Guardar",
+        footerMade: "Hecho con ❤️ por",
+        footerInfo: "Este proyecto es open source y forma parte del ecosistema PensaInfra.",
+        donateKofi: "☕ Invítame un café (Ko-fi)",
+        donateCoffee: "🍵 Buy me a coffee"
+      },
+      en: {
+        title: "GitHub Webhooks Admin",
+        logout: "Logout",
+        reposConfigured: "Configured Repositories",
+        repository: "Repository",
+        configuredURLs: "Configured URLs",
+        actions: "Actions",
+        deleteURL: "Delete",
+        testURL: "Test",
+        noURLs: "No URLs configured",
+        newURL: "New Teams URL",
+        addURL: "Add URL",
+        deleteRepo: "Delete Repo",
+        noRepos: "No repositories configured.",
+        addRepo: "Add new repository",
+        repoName: "Repository name (org/repo):",
+        addButton: "Add Repo",
+        hmacTitle: "Configure HMAC Secret",
+        currentSecret: "Current secret:",
+        newSecret: "New HMAC secret:",
+        saveButton: "Save",
+        footerMade: "Made with ❤️ by",
+        footerInfo: "This project is open source and part of the PensaInfra ecosystem.",
+        donateKofi: "☕ Buy me a coffee (Ko-fi)",
+        donateCoffee: "🍵 Buy me a coffee"
+      }
+    };
+
+    const lang = navigator.language.startsWith("es") ? "es" : "en";
+    const t = translations[lang];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.title = t.title;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (t[key]) el.textContent = t[key];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (t[key]) el.setAttribute("placeholder", t[key]);
+      });
+
+      // 📅 Año dinámico
+      document.getElementById("footer-year").innerHTML = `© ${new Date().getFullYear()} Carlos Pensa`;
+    });
+  </script>
+</body>
+
+</html>

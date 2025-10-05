@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="title">Login — Webhooks Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:#f5f6f7;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      margin:0;
+      flex-direction:column;
+    }
+
+    .card {
+      background:#fff;
+      padding:2rem;
+      border-radius:8px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      width:100%;
+      max-width:380px;
+      text-align:center;
+    }
+
+    h1 {
+      margin-top:0;
+      font-size:1.3rem;
+      color:#333;
+    }
+
+    label {
+      display:block;
+      text-align:left;
+      margin-top:0.75rem;
+      font-weight:bold;
+      color:#333;
+    }
+
+    input {
+      width:100%;
+      padding:.6rem .75rem;
+      margin-top:.3rem;
+      border:1px solid #ddd;
+      border-radius:6px;
+      box-sizing:border-box;
+      font-size:1rem;
+    }
+
+    button {
+      width:100%;
+      padding:.7rem;
+      margin-top:1rem;
+      background:#007bff;
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:1rem;
+      font-weight:bold;
+      transition:background .2s ease-in-out;
+    }
+
+    button:hover { background:#016adb; }
+
+    .err {
+      color:#b00020;
+      background:#fdecee;
+      padding:.6rem .75rem;
+      border-radius:6px;
+      margin-bottom:1rem;
+      font-size:.95rem;
+    }
+
+    footer {
+      margin-top:2rem;
+      text-align:center;
+      color:#555;
+      font-size:0.9rem;
+    }
+
+    .donate-btn {
+      display:inline-block;
+      margin:0.3rem;
+      padding:0.5rem 1rem;
+      border-radius:6px;
+      color:white;
+      font-weight:bold;
+      text-decoration:none;
+      transition:opacity 0.2s ease-in-out;
+    }
+
+    .kofi { background-color:#29abe0; }
+    .coffee { background-color:#ff813f; }
+    .donate-btn:hover { opacity:0.85; }
+
+    .foot {
+      margin-top:1rem;
+      font-size:.85rem;
+      color:#666;
+      text-align:center;
+    }
+
+  </style>
+</head>
+<body>
+  <form class="card" method="post" action="/login">
+    <h1 data-i18n="loginTitle">Acceso al Panel</h1>
+    {% if error %}<div class="err">{{ error }}</div>{% endif %}
+    <label data-i18n="usernameLabel">Usuario</label>
+    <input name="username" type="text" autocomplete="username" required />
+    <label data-i18n="passwordLabel">Contraseña</label>
+    <input name="password" type="password" autocomplete="current-password" required />
+    <button type="submit" data-i18n="loginButton">Ingresar</button>
+    <div class="foot" data-i18n="secureSession">Protegido por sesión segura</div>
+  </form>
+
+  <footer>
+    <p><span data-i18n="footerMade">Hecho con ❤️ por</span> <strong>Carlos Pensa</strong></p>
+    <p data-i18n="footerInfo">Este proyecto es open source y forma parte del ecosistema <strong>PensaInfra</strong>.</p>
+    <div>
+      <a href="https://ko-fi.com/carolusx74" class="donate-btn kofi" target="_blank" data-i18n="donateKofi">☕ Invítame un café (Ko-fi)</a>
+      <a href="https://www.buymeacoffee.com/carolusx74" class="donate-btn coffee" target="_blank" data-i18n="donateCoffee">🍵 Buy me a coffee</a>
+    </div>
+    <p id="footer-year"></p>
+  </footer>
+
+  <script>
+    // 🌍 Traducciones dinámicas
+    const translations = {
+      es: {
+        title: "Login — Webhooks Admin",
+        loginTitle: "Acceso al Panel",
+        usernameLabel: "Usuario",
+        passwordLabel: "Contraseña",
+        loginButton: "Ingresar",
+        secureSession: "Protegido por sesión segura",
+        footerMade: "Hecho con ❤️ por",
+        footerInfo: "Este proyecto es open source y forma parte del ecosistema PensaInfra.",
+        donateKofi: "☕ Invítame un café (Ko-fi)",
+        donateCoffee: "🍵 Buy me a coffee"
+      },
+      en: {
+        title: "Login — Webhooks Admin",
+        loginTitle: "Panel Access",
+        usernameLabel: "Username",
+        passwordLabel: "Password",
+        loginButton: "Login",
+        secureSession: "Protected by secure session",
+        footerMade: "Made with ❤️ by",
+        footerInfo: "This project is open source and part of the PensaInfra ecosystem.",
+        donateKofi: "☕ Buy me a coffee (Ko-fi)",
+        donateCoffee: "🍵 Buy me a coffee"
+      }
+    };
+
+    const lang = navigator.language.startsWith("es") ? "es" : "en";
+    const t = translations[lang];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.title = t.title;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (t[key]) el.textContent = t[key];
+      });
+      document.getElementById("footer-year").innerHTML = `© ${new Date().getFullYear()} Carlos Pensa`;
+    });
+  </script>
+</body>
+</html>

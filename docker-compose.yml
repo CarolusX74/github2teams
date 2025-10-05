@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  github2teams:
+    image: carolusx74/github2teams:latest
+    container_name: github2teams
+    restart: always
+    ports:
+      - "8011:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      # 🔐 Clave usada para validar firmas HMAC de GitHub
+      - WEBHOOK_SECRET=my-webhook-secret
+
+      # 👤 Credenciales del panel de administración
+      - ADMIN_USER=admin
+      - ADMIN_PASS=superseguro123
+
+      # 🔑 Secreto de sesión para cookies seguras
+      - SESSION_SECRET=c61b4c13c2bf401e03f1c4870677b81b39eff7a0db46972d966cfe4adc743d76
+
+    # ✅ Permite integrarlo fácilmente con otras apps
+    networks:
+      - github2teams-net
+
+networks:
+  github2teams-net:
+    driver: bridge
