@@ -1,22 +1,24 @@
-FROM python:3.11-slim
+#!/bin/sh
+set -e
 
-LABEL maintainer="Carlos Javier Torres Pensa <carlosjtp.777@gmail.com>"
-LABEL description="A self-hosted FastAPI bridge between GitHub Webhooks and Microsoft Teams."
+# ==========================================
+#  GitHub → Teams Bridge (github2teams)
+#  Entrypoint Script
+#  © 2025 - Carlos Javier Torres Pensa
+# ==========================================
 
-WORKDIR /app
+mkdir -p /app/data
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+if [ ! -f /app/data/config.json ]; then
+    echo "📄 [$(date)] Config no encontrado, copiando config por defecto al volumen..."
+    cp /default-config.json /app/data/config.json || {
+        echo "❌ Error: No se pudo copiar /default-config.json a /app/data/config.json"
+        ls -l / /app || true
+        exit 1
+    }
+else
+    echo "✅ [$(date)] Config existente detectado, se mantiene."
+fi
 
-# Copiar código y configuración base
-COPY app ./app
-COPY data/config.json /default-config.json
-
-# Copiar entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-EXPOSE 8000
-
-# Usar entrypoint personalizado
-ENTRYPOINT ["/entrypoint.sh"]
+echo "🚀 Iniciando FastAPI..."
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000

@@ -1,16 +1,26 @@
-version: '3.9'
+# ==========================================
+#  GitHub → Teams Bridge (github2teams)
+#  Docker Compose - Producción
+#  © 2025 - Carlos Javier Torres Pensa
+# ==========================================
 
 services:
   github2teams:
     image: carolusx74/github2teams:latest
     container_name: github2teams
     restart: always
+
+    # Puertos expuestos (interno 8000 → externo 8011)
     ports:
       - "8011:8000"
+
+    # Montar carpeta de configuración persistente
     volumes:
       - ./data:/app/data
+
+    # Variables de entorno principales
     environment:
-      # 🔐 Clave usada para validar firmas HMAC de GitHub
+      # 🔐 Clave para validar firmas HMAC de GitHub
       - WEBHOOK_SECRET=my-webhook-secret
 
       # 👤 Credenciales del panel de administración
@@ -20,10 +30,13 @@ services:
       # 🔑 Secreto de sesión para cookies seguras
       - SESSION_SECRET=c61b4c13c2bf401e03f1c4870677b81b39eff7a0db46972d966cfe4adc743d76
 
-    # ✅ Permite integrarlo fácilmente con otras apps
+    # Red dedicada
     networks:
       - github2teams-net
 
+# ==========================================
+#  Red interna para aislar el servicio
+# ==========================================
 networks:
   github2teams-net:
     driver: bridge

@@ -9,6 +9,9 @@ FROM python:3.11-slim
 LABEL maintainer="Carlos Javier Torres Pensa <carlosjtp.777@gmail.com>"
 LABEL description="A self-hosted FastAPI bridge between GitHub Webhooks and Microsoft Teams."
 
+# Evitar buffering en logs de Python
+ENV PYTHONUNBUFFERED=1
+
 # Directorio de trabajo
 WORKDIR /app
 
@@ -16,14 +19,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar código de la app
+# Copiar código fuente de la app
 COPY app ./app
 
-# Copiar archivo(s) de configuración
-COPY data/config.json ./data/config.json
+# Copiar archivo de configuración por defecto a la raíz del contenedor
+COPY data/config.json /default-config.json
+
+# Copiar script de arranque con permisos de ejecución
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
 
 # Exponer el puerto de FastAPI
 EXPOSE 8000
 
-# Comando por defecto
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Ejecutar el script de arranque personalizado
+ENTRYPOINT ["/entrypoint.sh"]
