@@ -3,7 +3,9 @@ name: Publish Docker image
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+    tags:
+      - 'v*'      # también se ejecuta cuando haces git tag v1.0.0
+  workflow_dispatch:   # permite correrlo manualmente
 
 jobs:
   build:
@@ -26,11 +28,22 @@ jobs:
         id: vars
         run: echo "date_tag=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
+      - name: Define tag list
+        id: tags
+        run: |
+          TAGS="carolusx74/github2teams:latest
+          carolusx74/github2teams:${{ env.date_tag }}"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            TAGS="$TAGS
+            carolusx74/github2teams:${GITHUB_REF_NAME}"
+          fi
+          echo "tags<<EOF" >> $GITHUB_ENV
+          echo "$TAGS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           push: true
           context: .
-          tags: |
-            carolusx74/github2teams:latest
-            carolusx74/github2teams:${{ env.date_tag }}
+          tags: ${{ env.tags }}
