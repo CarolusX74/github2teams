@@ -111,7 +111,7 @@ Cuando se abra un nuevo Pull Request o se haga merge, el canal de Teams recibir�
 > 🟩 **New Pull Request #42**  
 > _feature/login → main_  
 > Autor: @carlospensa  
-> Labels: ALTAS, CORE  
+> Labels: fix, CORE  
 > Milestone: v1.2.0  
 
 ---
