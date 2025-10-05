@@ -1,4 +1,4 @@
-    import httpx
+import httpx
 
 async def send_to_teams(
     webhook_url: str,
