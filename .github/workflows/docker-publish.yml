@@ -3,11 +3,12 @@ name: Publish Docker image
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # permite ejecutarlo manualmente también
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,9 +22,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set build date tag
+        id: vars
+        run: echo "date_tag=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: carolusx74/github2teams:latest
           context: .
+          tags: |
+            carolusx74/github2teams:latest
+            carolusx74/github2teams:${{ env.date_tag }}
